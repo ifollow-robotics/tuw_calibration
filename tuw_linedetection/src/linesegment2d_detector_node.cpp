@@ -67,13 +67,26 @@ void Linesegment2DDetectorNode::callbackLaser(const sensor_msgs::LaserScan& _las
   measurement_laser_->range_min() = _laser.range_min;
   measurement_laser_->resize(nr);
   measurement_laser_->stamp() = _laser.header.stamp.toBoost();
+  
+  measurement_local_scanpoints_.resize(measurement_laser_->size());
   for (int i = 0; i < nr; i++)
   {
     MeasurementLaser::Beam& beam = measurement_laser_->operator[](i);
-    beam.length = _laser.ranges[i];
-    beam.angle = _laser.angle_min + (_laser.angle_increment * i);
-    beam.end_point.x() = cos(beam.angle) * beam.length;
-    beam.end_point.y() = sin(beam.angle) * beam.length;
+    if(_laser.ranges[i]<200){
+      beam.length = _laser.ranges[i];
+      beam.angle = _laser.angle_min + (_laser.angle_increment * i);
+      beam.end_point.x() = cos(beam.angle) * beam.length;
+      beam.end_point.y() = sin(beam.angle) * beam.length;
+//	ROS_INFO("NORMAL");
+    }
+    else {
+      beam.length = 200.0;
+      //beam.length = measurement_laser_->range_max();
+      beam.angle = _laser.angle_min + (_laser.angle_increment * i);
+      beam.end_point.x() = cos(beam.angle) * beam.length;
+      beam.end_point.y() = sin(beam.angle) * beam.length;
+//	ROS_INFO("NAAAAAAAAAAAAAAAAAAAAAAN");
+    }
   }
 
   measurement_local_scanpoints_.resize(measurement_laser_->size());

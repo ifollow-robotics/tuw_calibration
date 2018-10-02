@@ -47,6 +47,7 @@ Laser2CornerNode::Laser2CornerNode() : nh_private_("~")
   nh_private_.param("corner_point_tolerance", corner_point_tolerance_, 0.005);
   nh_private_.param("corner_point_x", corner_point_x_, 1.0);
   nh_private_.param("corner_point_y", corner_point_y_, -1.0);
+  nh_private_.param("front_or_not",front_or_not_, true);
 }
 
 void Laser2CornerNode::callbackSegments(const tuw_geometry_msgs::LineSegments& _segments_msg)
@@ -58,7 +59,7 @@ void Laser2CornerNode::callbackSegments(const tuw_geometry_msgs::LineSegments& _
 
   if (linesegments_.size() < 2)
   {
-    ROS_WARN("need at least two lines for corner");
+    ROS_WARN("need at least two lines for corner  %d",linesegments_.size());
     return;
   }
 
@@ -140,22 +141,28 @@ void Laser2CornerNode::callbackSegments(const tuw_geometry_msgs::LineSegments& _
   pub_marker_.publish(centers);
 
   // use angle from line on the side
-  if (middle_1.x() > middle_2.x())
-  {
+ // if (middle_1.x() > middle_2.x())
+ // {
     corner_yaw = linesegments_[closest_idx_2].angle();
-  }
-  else
-  {
-    corner_yaw = linesegments_[closest_idx_1].angle();
-  }
+ // }
+ // else
+ // {
+ //   corner_yaw = linesegments_[closest_idx_1].angle();
+ // }
 
   tf::Vector3 T = tf::Vector3(corner_point.x(), corner_point.y(), 0);
   tf::Quaternion Q;
   Q.setRPY(0, 0, corner_yaw);
 
   tf::Transform laser_to_corner(Q, T);
-  tf_broadcaster_->sendTransform(
-      tf::StampedTransform(laser_to_corner, ros::Time::now(), _segments_msg.header.frame_id, "corner"));
+  if (front_or_not_){
+      tf_broadcaster_->sendTransform(
+         tf::StampedTransform(laser_to_corner, ros::Time::now(), _segments_msg.header.frame_id, "front_corner"));
+  }
+  else{
+      tf_broadcaster_->sendTransform(
+         tf::StampedTransform(laser_to_corner, ros::Time::now(), _segments_msg.header.frame_id, "back_corner"));
+  }
 }
 
 int main(int argc, char** argv)

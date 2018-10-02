@@ -1,5 +1,5 @@
 <launch>
-  <arg name="laser_scan" default="/p3dx/laser_front/scan"/>
+  <arg name="laser_scan" default="scan_frontHokuyo"/>
   <arg name="linesegments_pub" default="line_segments"/>
   
   <node name="linesegment2d_detector_node" pkg="tuw_linedetection" type="linesegment2d_detector_node" output="screen">

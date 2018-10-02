@@ -1,19 +1,33 @@
 <launch>
   <arg name="static_corner_point_tf" default="static_corner_point_tf"/>
-  <arg name="linesegments_pub" default="line_segments"/>
   <arg name="corner_point_tolerance" default="0.005"/>
   <arg name="corner_point_x" default="2.0"/>
   <arg name="corner_point_y" default="-0.1"/>
-  <arg name="scan" default="laser_front/scan" />
   
-  <include file="$(find tuw_linedetection)/launch/linesegment2d_detector_node.launch">
-      <arg name="laser_scan" value="$(arg scan)" />
-  </include>
+  <node name="front_linesegment2d_detector_node" pkg="tuw_linedetection" type="linesegment2d_detector_node" output="screen">
+    <remap from="scan" to="scan_frontHokuyo" />
+    <remap from="line_segments" to="front_line_segments" />
+  </node>
   
-  <node name="tuw_laser2corner_node" pkg="tuw_laser2corner" type="tuw_laser2corner_node" output="screen">
-    <remap from="line_segments" to="$(arg linesegments_pub)" />
+  <node name="front_tuw_laser2corner_node" pkg="tuw_laser2corner" type="tuw_laser2corner_node" output="screen">
+    <remap from="line_segments" to="front_line_segments" />
     <param name="corner_point_tolerance" value="$(arg corner_point_tolerance)" type="double"/>
     <param name="corner_point_x" value="$(arg corner_point_x)" type="double"/>
     <param name="corner_point_y" value="$(arg corner_point_y)" type="double"/>
+    <param name="front_or_not" value="true" type="bool"/>
+  </node>
+
+
+  <node name="back_linesegment2d_detector_node" pkg="tuw_linedetection" type="linesegment2d_detector_node" output="screen">
+    <remap from="scan" to="scan_backHokuyo" />
+    <remap from="line_segments" to="back_line_segments" />
+  </node>
+  
+  <node name="back_tuw_laser2corner_node" pkg="tuw_laser2corner" type="tuw_laser2corner_node" output="screen">
+    <remap from="line_segments" to="back_line_segments" />
+    <param name="corner_point_tolerance" value="$(arg corner_point_tolerance)" type="double"/>
+    <param name="corner_point_x" value="$(arg corner_point_x)" type="double"/>
+    <param name="corner_point_y" value="$(arg corner_point_y)" type="double"/>
+    <param name="front_or_not" value="false" type="bool"/>
   </node>
 </launch>
